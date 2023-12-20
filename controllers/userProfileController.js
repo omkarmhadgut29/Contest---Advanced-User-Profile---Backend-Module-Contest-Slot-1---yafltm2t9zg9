@@ -1,5 +1,6 @@
 //Before writing a code consider reading the documentation and code carefullt
 
+const User = require("../models/userModel");
 const UserProfile = require("../models/userProfileModel");
 
 exports.createProfile = async (req, res) => {
@@ -10,17 +11,43 @@ exports.createProfile = async (req, res) => {
 
         const userId = req.params.userId;
 
-        const isUserExist = UserProfile.findOne({ userId });
+        const isUserExist = await UserProfile.find({
+            user: userId,
+        });
         if (isUserExist) {
-            res.status(400).json({ message: "Profile already exists" });
+            return res.status(400).json({
+                message: "user already exist!!!!",
+            });
         }
 
-        const userProfile = UserProfile.create({ userId });
+        const userProfile = await UserProfile.create({ user: userId });
 
         return res.status(201).json({
             message: "User profile created successfully",
             userProfile,
         });
+
+        // try {
+        //     const isUser = await User.find({ _id: userId });
+        //     if (isUser) {
+        //         const isUserExist = await UserProfile.find({
+        //             _id: userId });
+
+        //         console.log(isUserExist);
+        //         const userProfile = UserProfile.create({ user: userId });
+        //         return res.status(201).json({
+        //             message: "User profile created successfully",
+        //             userProfile,
+        //         });
+        //     } else {
+        //         res.status(400).json({ message: "User id is incorrect" });
+        //     }
+        //     // if (isUserExist) {
+        //     //     res.status(400).json({ message: "Profile already exists" });
+        //     // }
+        // } catch (error) {
+        //     res.status(400).json({ message: "Profile already exists", error });
+        // }
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });
@@ -35,8 +62,7 @@ exports.createList = async (req, res) => {
         const userId = req.params.userId;
         const { listName } = req.body;
 
-        const userProfile = await UserProfile.findOne({ userId });
-
+        const userProfile = await UserProfile.user.find({ user: userId });
         if (!userProfile) {
             return res.status(404).json({ message: "User profile not found" });
         }
@@ -46,9 +72,9 @@ exports.createList = async (req, res) => {
             items: [],
         };
 
-        UserProfile.lists.push(newList);
+        await UserProfile.lists.push(newList);
 
-        await userProfile.save();
+        await UserProfile.save();
 
         res.status(201).json({
             message: "List created successfully",
@@ -70,7 +96,7 @@ exports.addItemToList = async (req, res) => {
         const { userId, listId } = req.params;
         const { itemName } = req.body;
 
-        const user = await UserProfile.findOne({ userId });
+        const user = await UserProfile.find({ user: userId });
         if (!user) {
             return res.status(404).json({ message: "User profile not found" });
         }
@@ -82,7 +108,7 @@ exports.addItemToList = async (req, res) => {
 
         targetList.items.push(itemName);
 
-        UserProfile.save();
+        await UserProfile.save();
 
         res.json({
             message: "Item added to the list successfully",

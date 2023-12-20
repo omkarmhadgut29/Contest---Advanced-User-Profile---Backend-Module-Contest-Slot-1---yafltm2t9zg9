@@ -7,7 +7,7 @@ dotenv.config();
 mongoose.set("useCreateIndex", true);
 mongoose.set("useFindAndModify", false);
 mongoose
-    .connect(`${process.env.DATABASE_URL}/newUser`)
+    .connect(`${process.env.DATABASE_URL}`)
     //   , {
     //     useNewUrlParser: true,
     //     useUnifiedTopology: true,
